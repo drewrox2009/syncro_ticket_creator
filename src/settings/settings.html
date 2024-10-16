@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Syncro Ticket Creator Settings</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+
+    <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
+    <link
+      rel="stylesheet"
+      href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css"
+    />
+
+    <!-- Template styles -->
+    <link href="settings.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body class="ms-font-m ms-Fabric">
+    <header class="ms-welcome__header ms-bgColor-neutralLighter">
+      <h1 class="ms-font-su">Syncro Ticket Creator Settings</h1>
+    </header>
+    <main id="app-body" class="ms-welcome__main">
+      <form id="settings-form">
+        <div class="ms-TextField">
+          <label class="ms-Label" for="syncro-url">Syncro URL</label>
+          <input type="url" id="syncro-url" class="ms-TextField-field" required />
+        </div>
+        <div class="ms-TextField">
+          <label class="ms-Label" for="syncro-api-key">Syncro API Key</label>
+          <input type="password" id="syncro-api-key" class="ms-TextField-field" required />
+        </div>
+        <div class="ms-TextField">
+          <button id="save-settings" class="ms-Button ms-Button--primary">
+            <span class="ms-Button-label">Save Settings</span>
+          </button>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>
