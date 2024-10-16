@@ -10,6 +10,9 @@ declare const fetch: (input: RequestInfo, init?: RequestInit) => Promise<Respons
 
 import { getSyncroSettings } from "../settings/settings";
 
+// Define environment-based configuration
+const BASE_URL = process.env.BASE_URL || "https://your-production-url.com";
+
 interface EmailInfo {
   subject: string;
   content: string;
@@ -66,7 +69,7 @@ async function loadSyncroSettings() {
 
 function openSettings() {
   Office.context.ui.displayDialogAsync(
-    `${window.location.origin}/settings/settings.html`,
+    `${BASE_URL}/settings/settings.html`,
     { height: 60, width: 30, displayInIframe: true },
     (result) => {
       if (result.status === Office.AsyncResultStatus.Failed) {
@@ -85,7 +88,7 @@ async function populateCustomers() {
     customers.forEach((customer) => {
       const option = document.createElement("option");
       option.value = customer.id.toString();
-      option.textContent = customer.name;
+      option.textContent = sanitizeHtml(customer.name);
       customerSelect.appendChild(option);
     });
     customerSelect.onchange = populateContacts;
@@ -105,7 +108,7 @@ async function populateContacts() {
     contacts.forEach((contact) => {
       const option = document.createElement("option");
       option.value = contact.id.toString();
-      option.textContent = contact.name;
+      option.textContent = sanitizeHtml(contact.name);
       contactSelect.appendChild(option);
     });
     hideStatus();
@@ -126,7 +129,7 @@ async function populateAssets() {
     assets.forEach((asset) => {
       const option = document.createElement("option");
       option.value = asset.id.toString();
-      option.textContent = asset.name;
+      option.textContent = sanitizeHtml(asset.name);
       assetSelect.appendChild(option);
     });
     hideStatus();
@@ -186,9 +189,9 @@ async function getEmailInfo(): Promise<EmailInfo> {
 
 // Syncro API functions
 async function fetchSyncroCustomers(): Promise<SyncroCustomer[]> {
-  const response = await fetch(`${syncroUrl}/api/v1/customers`, {
+  const response = await fetch(`${BASE_URL}/api/proxy/customers`, {
     headers: {
-      Authorization: `Bearer ${syncroApiKey}`,
+      "X-Syncro-API-Key": syncroApiKey,
     },
   });
   if (!response.ok) {
@@ -198,9 +201,9 @@ async function fetchSyncroCustomers(): Promise<SyncroCustomer[]> {
 }
 
 async function fetchSyncroContacts(customerId: number): Promise<SyncroContact[]> {
-  const response = await fetch(`${syncroUrl}/api/v1/customers/${customerId}/contacts`, {
+  const response = await fetch(`${BASE_URL}/api/proxy/customers/${customerId}/contacts`, {
     headers: {
-      Authorization: `Bearer ${syncroApiKey}`,
+      "X-Syncro-API-Key": syncroApiKey,
     },
   });
   if (!response.ok) {
@@ -210,9 +213,9 @@ async function fetchSyncroContacts(customerId: number): Promise<SyncroContact[]>
 }
 
 async function fetchSyncroAssets(customerId: number): Promise<SyncroAsset[]> {
-  const response = await fetch(`${syncroUrl}/api/v1/customers/${customerId}/assets`, {
+  const response = await fetch(`${BASE_URL}/api/proxy/customers/${customerId}/assets`, {
     headers: {
-      Authorization: `Bearer ${syncroApiKey}`,
+      "X-Syncro-API-Key": syncroApiKey,
     },
   });
   if (!response.ok) {
@@ -222,10 +225,10 @@ async function fetchSyncroAssets(customerId: number): Promise<SyncroAsset[]> {
 }
 
 async function createSyncroTicket(ticketData: any): Promise<any> {
-  const response = await fetch(`${syncroUrl}/api/v1/tickets`, {
+  const response = await fetch(`${BASE_URL}/api/proxy/tickets`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${syncroApiKey}`,
+      "X-Syncro-API-Key": syncroApiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(ticketData),
@@ -244,7 +247,7 @@ function showStatus(message: string, type: "info" | "error" | "success" = "info"
     document.body.insertBefore(newStatusElement, document.body.firstChild);
   }
   const element = statusElement || document.getElementById("status-message")!;
-  element.textContent = message;
+  element.textContent = sanitizeHtml(message);
   element.className = `status-message ${type}`;
   element.style.display = "block";
 }
@@ -254,4 +257,19 @@ function hideStatus() {
   if (statusElement) {
     statusElement.style.display = "none";
   }
+}
+
+// Simple HTML sanitization function
+function sanitizeHtml(input: string): string {
+  return input.replace(/[&<>"']/g, function (match) {
+    return (
+      {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      }[match] || match
+    );
+  });
 }
