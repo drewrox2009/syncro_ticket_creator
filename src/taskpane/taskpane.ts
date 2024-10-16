@@ -3,7 +3,7 @@
  * See LICENSE in the project root for license information.
  */
 
-/* global Office, document, console, window */
+/* global Office */
 
 // Declare fetch as a global for TypeScript
 declare const fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
@@ -11,7 +11,7 @@ declare const fetch: (input: RequestInfo, init?: RequestInit) => Promise<Respons
 import { getSyncroSettings } from "../settings/settings";
 
 // Define environment-based configuration
-const BASE_URL = process.env.BASE_URL || "https://your-production-url.com";
+const BASE_URL = "https://drewrox2009.github.io/syncro_ticket_creator";
 
 interface EmailInfo {
   subject: string;
@@ -189,9 +189,9 @@ async function getEmailInfo(): Promise<EmailInfo> {
 
 // Syncro API functions
 async function fetchSyncroCustomers(): Promise<SyncroCustomer[]> {
-  const response = await fetch(`${BASE_URL}/api/proxy/customers`, {
+  const response = await fetch(`${syncroUrl}/api/v1/customers`, {
     headers: {
-      "X-Syncro-API-Key": syncroApiKey,
+      Authorization: `Bearer ${syncroApiKey}`,
     },
   });
   if (!response.ok) {
@@ -201,9 +201,9 @@ async function fetchSyncroCustomers(): Promise<SyncroCustomer[]> {
 }
 
 async function fetchSyncroContacts(customerId: number): Promise<SyncroContact[]> {
-  const response = await fetch(`${BASE_URL}/api/proxy/customers/${customerId}/contacts`, {
+  const response = await fetch(`${syncroUrl}/api/v1/customers/${customerId}/contacts`, {
     headers: {
-      "X-Syncro-API-Key": syncroApiKey,
+      Authorization: `Bearer ${syncroApiKey}`,
     },
   });
   if (!response.ok) {
@@ -213,9 +213,9 @@ async function fetchSyncroContacts(customerId: number): Promise<SyncroContact[]>
 }
 
 async function fetchSyncroAssets(customerId: number): Promise<SyncroAsset[]> {
-  const response = await fetch(`${BASE_URL}/api/proxy/customers/${customerId}/assets`, {
+  const response = await fetch(`${syncroUrl}/api/v1/customers/${customerId}/assets`, {
     headers: {
-      "X-Syncro-API-Key": syncroApiKey,
+      Authorization: `Bearer ${syncroApiKey}`,
     },
   });
   if (!response.ok) {
@@ -225,10 +225,10 @@ async function fetchSyncroAssets(customerId: number): Promise<SyncroAsset[]> {
 }
 
 async function createSyncroTicket(ticketData: any): Promise<any> {
-  const response = await fetch(`${BASE_URL}/api/proxy/tickets`, {
+  const response = await fetch(`${syncroUrl}/api/v1/tickets`, {
     method: "POST",
     headers: {
-      "X-Syncro-API-Key": syncroApiKey,
+      Authorization: `Bearer ${syncroApiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(ticketData),

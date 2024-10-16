@@ -8,19 +8,18 @@
 
   <Id>a3f46b61-0c0f-4f9e-a2cc-9f279990011e</Id>
   <Version>1.0.0</Version>
-  <ProviderName>Your Company Name</ProviderName>
+  <ProviderName>MDC Computers</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Syncro Ticket Creator" />
   <Description DefaultValue="Create Syncro tickets from Outlook emails."/>
-  <IconUrl DefaultValue="https://www.yourcompany.com/assets/icon-64.png" />
-  <HighResolutionIconUrl DefaultValue="https://www.yourcompany.com/assets/icon-128.png" />
-  <SupportUrl DefaultValue="https://www.yourcompany.com/support" />
+  <IconUrl DefaultValue="https://drewrox2009.github.io/syncro_ticket_creator/assets/icon-64.png" />
+  <HighResolutionIconUrl DefaultValue="https://drewrox2009.github.io/syncro_ticket_creator/assets/icon-128.png" />
+  <SupportUrl DefaultValue="https://github.com/drewrox2009/syncro_ticket_creator/issues" />
   <AppDomains>
-    <AppDomain>https://www.yourcompany.com</AppDomain>
-    <AppDomain>https://www.syncromsp.com</AppDomain>
+    <AppDomain>https://drewrox2009.github.io</AppDomain>
+    <AppDomain>https://app.syncromsp.com</AppDomain>
   </AppDomains>
-
-  <Hosts>
+ <Hosts>
     <Host Name="Mailbox" />
   </Hosts>
 
@@ -33,7 +32,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://www.yourcompany.com/taskpane.html"/>
+        <SourceLocation DefaultValue="https://drewrox2009.github.io/syncro_ticket_creator/taskpane.html"/>
         <RequestedHeight>250</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -82,13 +81,13 @@
     </Hosts>
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16x16" DefaultValue="https://www.yourcompany.com/assets/icon-16.png"/>
-        <bt:Image id="Icon.32x32" DefaultValue="https://www.yourcompany.com/assets/icon-32.png"/>
-        <bt:Image id="Icon.80x80" DefaultValue="https://www.yourcompany.com/assets/icon-80.png"/>
+        <bt:Image id="Icon.16x16" DefaultValue="https://drewrox2009.github.io/syncro_ticket_creator/assets/icon-16.png"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://drewrox2009.github.io/syncro_ticket_creator/assets/icon-32.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://drewrox2009.github.io/syncro_ticket_creator/assets/icon-80.png"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Commands.Url" DefaultValue="https://www.yourcompany.com/commands.html" />
-        <bt:Url id="Taskpane.Url" DefaultValue="https://www.yourcompany.com/taskpane.html" />
+        <bt:Url id="Commands.Url" DefaultValue="https://drewrox2009.github.io/syncro_ticket_creator/commands.html" />
+        <bt:Url id="Taskpane.Url" DefaultValue="https://drewrox2009.github.io/syncro_ticket_creator/taskpane.html" />
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="Syncro Ticket Creator"/>
@@ -99,4 +98,5 @@
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
+
 </OfficeApp>

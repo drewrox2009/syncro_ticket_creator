@@ -3,9 +3,10 @@
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require("path");
 
 const urlDev = "https://localhost:3000/";
-const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
+const urlProd = "https://drewrox2009.github.io/syncro_ticket_creator/"; // Updated to your GitHub Pages URL
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
@@ -23,6 +24,8 @@ module.exports = async (env, options) => {
     },
     output: {
       clean: true,
+      path: path.resolve(__dirname, "dist"),
+      filename: "[name].js",
     },
     resolve: {
       extensions: [".ts", ".html", ".js"],
@@ -62,12 +65,12 @@ module.exports = async (env, options) => {
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: "appPackage/assets/*",
+            from: "assets/*",
             to: "assets/[name][ext][query]",
           },
           {
-            from: "appPackage/manifest*.json",
-            to: "[name]" + "[ext]",
+            from: "manifest.xml",
+            to: "manifest.xml",
             transform(content) {
               if (dev) {
                 return content;
