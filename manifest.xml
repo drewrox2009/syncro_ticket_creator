@@ -7,7 +7,7 @@
   xsi:type="MailApp">
 
   <Id>a3f46b61-0c0f-4f9e-a2cc-9f279990011e</Id>
-  <Version>1.0.0</Version>
+  <Version>1.0.1</Version>
   <ProviderName>MDC Computers</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Syncro Ticket Creator" />
