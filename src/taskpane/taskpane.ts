@@ -8,7 +8,7 @@
 // Declare fetch as a global for TypeScript
 declare const fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
-import { getSyncroSettings } from "../settings/settings";
+import { getSyncroSettings, saveSyncroSettings } from "../settings/settings";
 
 // Define environment-based configuration
 const BASE_URL = "https://drewrox2009.github.io/syncro_ticket_creator";
@@ -47,23 +47,76 @@ Office.onReady((info: { host: Office.HostType; platform: Office.PlatformType }) 
 
 async function loadSyncroSettings() {
   const settings = getSyncroSettings();
+  console.log("Retrieved settings:", settings); // Add this line for debugging
   syncroApiKey = settings.syncroApiKey;
   syncroUrl = settings.syncroUrl;
 
   if (!syncroApiKey || !syncroUrl) {
-    // Prompt user to set up settings
-    document.getElementById("app-body")!.innerHTML = `
-      <p>Please set up your Syncro settings before using this add-in.</p>
-      <button id="open-settings" class="ms-Button ms-Button--primary">
-        <span class="ms-Button-label">Open Settings</span>
-      </button>
-    `;
-    document.getElementById("open-settings")!.onclick = openSettings;
+    showSettingsUI();
   } else {
-    // Settings are available, initialize the app
-    showStatus("Loading customers...");
+    try {
+      showStatus("Verifying API settings...");
+      await verifyApiSettings();
+      showStatus("Loading customers...");
+      await populateCustomers();
+      hideStatus();
+    } catch (error) {
+      console.error("Error initializing app:", error);
+      showStatus("Failed to initialize app. Please check your Syncro settings.", "error");
+      showSettingsUI();
+    }
+  }
+}
+
+function showSettingsUI() {
+  document.getElementById("app-body")!.innerHTML = `
+    <h2>Syncro API Settings</h2>
+    <div class="ms-TextField">
+      <label class="ms-Label" for="syncro-url">Syncro URL</label>
+      <input type="text" id="syncro-url" class="ms-TextField-field" value="${syncroUrl || ""}" required />
+    </div>
+    <div class="ms-TextField">
+      <label class="ms-Label" for="syncro-api-key">Syncro API Key</label>
+      <input type="password" id="syncro-api-key" class="ms-TextField-field" value="${syncroApiKey || ""}" required />
+    </div>
+    <div class="ms-TextField">
+      <button id="save-settings" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">Save Settings</span>
+      </button>
+    </div>
+  `;
+  document.getElementById("save-settings")!.onclick = saveSettings;
+}
+
+async function saveSettings() {
+  const newSyncroUrl = (document.getElementById("syncro-url") as HTMLInputElement).value;
+  const newSyncroApiKey = (document.getElementById("syncro-api-key") as HTMLInputElement).value;
+
+  if (!newSyncroUrl || !newSyncroApiKey) {
+    showStatus("Please enter both Syncro URL and API Key.", "error");
+    return;
+  }
+
+  try {
+    await saveSyncroSettings(newSyncroUrl, newSyncroApiKey);
+    syncroUrl = newSyncroUrl;
+    syncroApiKey = newSyncroApiKey;
+    showStatus("Settings saved successfully. Initializing app...", "success");
+    await verifyApiSettings();
     await populateCustomers();
     hideStatus();
+  } catch (error) {
+    console.error("Error saving settings:", error);
+    showStatus("Failed to save settings. Please try again.", "error");
+  }
+}
+
+async function verifyApiSettings() {
+  try {
+    await fetchSyncroCustomers();
+  } catch (error) {
+    console.error("Error verifying API settings:", error);
+    throw new Error("Invalid API settings. Please check your Syncro URL and API Key.");
   }
 }
 
@@ -95,6 +148,7 @@ async function populateCustomers() {
   } catch (error) {
     console.error("Error populating customers:", error);
     showStatus("Failed to load customers. Please check your Syncro settings.", "error");
+    throw error; // Rethrow the error to be caught by the caller
   }
 }
 
@@ -261,15 +315,7 @@ function hideStatus() {
 
 // Simple HTML sanitization function
 function sanitizeHtml(input: string): string {
-  return input.replace(/[&<>"']/g, function (match) {
-    return (
-      {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      }[match] || match
-    );
-  });
+  const div = document.createElement("div");
+  div.textContent = input;
+  return div.innerHTML;
 }

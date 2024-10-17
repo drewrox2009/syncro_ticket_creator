@@ -3,7 +3,7 @@
  * See LICENSE in the project root for license information.
  */
 
-/* global Office, document, console */
+/* global Office */
 
 Office.onReady((info) => {
   if (info.host === Office.HostType.Outlook) {
@@ -16,17 +16,15 @@ function saveSettings() {
   const syncroUrl = (document.getElementById("syncro-url") as HTMLInputElement).value;
   const syncroApiKey = (document.getElementById("syncro-api-key") as HTMLInputElement).value;
 
-  Office.context.roamingSettings.set("syncroUrl", syncroUrl);
-  Office.context.roamingSettings.set("syncroApiKey", syncroApiKey);
-  Office.context.roamingSettings.saveAsync((result) => {
-    if (result.status === Office.AsyncResultStatus.Succeeded) {
+  saveSyncroSettings(syncroUrl, syncroApiKey)
+    .then(() => {
       console.log("Settings saved successfully");
       // TODO: Show success message to user
-    } else {
-      console.error("Error saving settings:", result.error);
+    })
+    .catch((error) => {
+      console.error("Error saving settings:", error);
       // TODO: Show error message to user
-    }
-  });
+    });
 }
 
 function loadSettings() {
@@ -46,4 +44,18 @@ export function getSyncroSettings(): { syncroUrl: string; syncroApiKey: string }
   const syncroUrl = Office.context.roamingSettings.get("syncroUrl") as string;
   const syncroApiKey = Office.context.roamingSettings.get("syncroApiKey") as string;
   return { syncroUrl, syncroApiKey };
+}
+
+export function saveSyncroSettings(syncroUrl: string, syncroApiKey: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    Office.context.roamingSettings.set("syncroUrl", syncroUrl);
+    Office.context.roamingSettings.set("syncroApiKey", syncroApiKey);
+    Office.context.roamingSettings.saveAsync((result) => {
+      if (result.status === Office.AsyncResultStatus.Succeeded) {
+        resolve();
+      } else {
+        reject(result.error);
+      }
+    });
+  });
 }
