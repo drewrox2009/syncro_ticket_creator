@@ -24,7 +24,7 @@ module.exports = async (env, options) => {
     },
     output: {
       clean: true,
-      path: path.resolve(__dirname, "dist"),
+      path: path.resolve(__dirname, dev ? "dev" : "dist"),
       filename: "[name].js",
     },
     resolve: {
@@ -73,7 +73,7 @@ module.exports = async (env, options) => {
             to: "manifest.xml",
             transform(content) {
               if (dev) {
-                return content;
+                return content.toString().replace(new RegExp(urlProd, "g"), urlDev);
               } else {
                 return content.toString().replace(new RegExp(urlDev, "g"), urlProd);
               }
