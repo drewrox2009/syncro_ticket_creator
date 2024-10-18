@@ -42,6 +42,9 @@ Office.onReady((info: { host: Office.HostType; platform: Office.PlatformType }) 
   }
 });
 
+// Add this line to check if the script is loaded and executed
+console.log("Syncro Ticket Creator: Script loaded and executed");
+
 async function loadSyncroSettings() {
   const settings = getSyncroSettings();
   console.log("Retrieved settings:", settings);
