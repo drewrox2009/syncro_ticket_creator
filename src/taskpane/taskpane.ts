@@ -10,9 +10,6 @@ declare const fetch: (input: RequestInfo, init?: RequestInit) => Promise<Respons
 
 import { getSyncroSettings, saveSyncroSettings } from "../settings/settings";
 
-// Define environment-based configuration
-const BASE_URL = "https://drewrox2009.github.io/syncro_ticket_creator";
-
 interface EmailInfo {
   subject: string;
   content: string;
@@ -47,25 +44,12 @@ Office.onReady((info: { host: Office.HostType; platform: Office.PlatformType }) 
 
 async function loadSyncroSettings() {
   const settings = getSyncroSettings();
-  console.log("Retrieved settings:", settings); // Add this line for debugging
+  console.log("Retrieved settings:", settings);
   syncroApiKey = settings.syncroApiKey;
   syncroUrl = settings.syncroUrl;
 
-  if (!syncroApiKey || !syncroUrl) {
-    showSettingsUI();
-  } else {
-    try {
-      showStatus("Verifying API settings...");
-      await verifyApiSettings();
-      showStatus("Loading customers...");
-      await populateCustomers();
-      hideStatus();
-    } catch (error) {
-      console.error("Error initializing app:", error);
-      showStatus("Failed to initialize app. Please check your Syncro settings.", "error");
-      showSettingsUI();
-    }
-  }
+  // Always show the settings UI when the app is launched
+  showSettingsUI();
 }
 
 function showSettingsUI() {
@@ -118,19 +102,6 @@ async function verifyApiSettings() {
     console.error("Error verifying API settings:", error);
     throw new Error("Invalid API settings. Please check your Syncro URL and API Key.");
   }
-}
-
-function openSettings() {
-  Office.context.ui.displayDialogAsync(
-    `${BASE_URL}/settings/settings.html`,
-    { height: 60, width: 30, displayInIframe: true },
-    (result) => {
-      if (result.status === Office.AsyncResultStatus.Failed) {
-        console.error("Failed to open settings dialog:", result.error);
-        showStatus("Failed to open settings. Please try again.", "error");
-      }
-    }
-  );
 }
 
 async function populateCustomers() {
