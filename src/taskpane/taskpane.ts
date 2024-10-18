@@ -35,15 +35,24 @@ interface SyncroAsset {
 let syncroApiKey: string;
 let syncroUrl: string;
 
-Office.onReady((info: { host: Office.HostType; platform: Office.PlatformType }) => {
-  if (info.host === Office.HostType.Outlook) {
-    document.getElementById("create-ticket")!.onclick = createTicket;
-    loadSyncroSettings();
-  }
-});
+// Function to initialize the app
+function initializeApp() {
+  console.log("Syncro Ticket Creator: Script loaded and executed");
+  document.getElementById("create-ticket")!.onclick = createTicket;
+  loadSyncroSettings();
+}
 
-// Add this line to check if the script is loaded and executed
-console.log("Syncro Ticket Creator: Script loaded and executed");
+// Check if we're in an Office environment
+if (typeof Office !== "undefined") {
+  Office.onReady((info: { host: Office.HostType; platform: Office.PlatformType }) => {
+    if (info.host === Office.HostType.Outlook) {
+      initializeApp();
+    }
+  });
+} else {
+  // If we're not in an Office environment, initialize the app directly
+  document.addEventListener("DOMContentLoaded", initializeApp);
+}
 
 async function loadSyncroSettings() {
   const settings = getSyncroSettings();
@@ -56,23 +65,28 @@ async function loadSyncroSettings() {
 }
 
 function showSettingsUI() {
-  document.getElementById("app-body")!.innerHTML = `
-    <h2>Syncro API Settings</h2>
-    <div class="ms-TextField">
-      <label class="ms-Label" for="syncro-url">Syncro URL</label>
-      <input type="text" id="syncro-url" class="ms-TextField-field" value="${syncroUrl || ""}" required />
-    </div>
-    <div class="ms-TextField">
-      <label class="ms-Label" for="syncro-api-key">Syncro API Key</label>
-      <input type="password" id="syncro-api-key" class="ms-TextField-field" value="${syncroApiKey || ""}" required />
-    </div>
-    <div class="ms-TextField">
-      <button id="save-settings" class="ms-Button ms-Button--primary">
-        <span class="ms-Button-label">Save Settings</span>
-      </button>
-    </div>
-  `;
-  document.getElementById("save-settings")!.onclick = saveSettings;
+  const appBody = document.getElementById("app-body");
+  if (appBody) {
+    appBody.innerHTML = `
+      <h2>Syncro API Settings</h2>
+      <div class="ms-TextField">
+        <label class="ms-Label" for="syncro-url">Syncro URL</label>
+        <input type="text" id="syncro-url" class="ms-TextField-field" value="${syncroUrl || ""}" required />
+      </div>
+      <div class="ms-TextField">
+        <label class="ms-Label" for="syncro-api-key">Syncro API Key</label>
+        <input type="password" id="syncro-api-key" class="ms-TextField-field" value="${syncroApiKey || ""}" required />
+      </div>
+      <div class="ms-TextField">
+        <button id="save-settings" class="ms-Button ms-Button--primary">
+          <span class="ms-Button-label">Save Settings</span>
+        </button>
+      </div>
+    `;
+    document.getElementById("save-settings")!.onclick = saveSettings;
+  } else {
+    console.error("Element with id 'app-body' not found");
+  }
 }
 
 async function saveSettings() {
@@ -198,20 +212,30 @@ async function createTicket(): Promise<void> {
 
 async function getEmailInfo(): Promise<EmailInfo> {
   return new Promise((resolve) => {
-    const item = Office.context.mailbox.item;
-    const emailInfo: EmailInfo = {
-      subject: item?.subject || "",
-      content: "",
-      senderEmail: item?.from?.emailAddress || "",
-      senderName: item?.from?.displayName || "",
-    };
+    if (typeof Office !== "undefined" && Office.context && Office.context.mailbox) {
+      const item = Office.context.mailbox.item;
+      const emailInfo: EmailInfo = {
+        subject: item?.subject || "",
+        content: "",
+        senderEmail: item?.from?.emailAddress || "",
+        senderName: item?.from?.displayName || "",
+      };
 
-    item?.body.getAsync(Office.CoercionType.Text, (result) => {
-      if (result.status === Office.AsyncResultStatus.Succeeded) {
-        emailInfo.content = result.value;
-      }
-      resolve(emailInfo);
-    });
+      item?.body.getAsync(Office.CoercionType.Text, (result) => {
+        if (result.status === Office.AsyncResultStatus.Succeeded) {
+          emailInfo.content = result.value;
+        }
+        resolve(emailInfo);
+      });
+    } else {
+      // If we're not in Outlook, return empty email info
+      resolve({
+        subject: "",
+        content: "",
+        senderEmail: "",
+        senderName: "",
+      });
+    }
   });
 }
 
