@@ -37,24 +37,31 @@ let syncroUrl: string;
 
 // Function to initialize the app
 function initializeApp() {
-  console.log("Syncro Ticket Creator: Script loaded and executed");
+  console.log("Syncro Ticket Creator: initializeApp called");
   document.getElementById("create-ticket")!.onclick = createTicket;
   loadSyncroSettings();
 }
 
 // Check if we're in an Office environment
 if (typeof Office !== "undefined") {
+  console.log("Syncro Ticket Creator: Office environment detected");
   Office.onReady((info: { host: Office.HostType; platform: Office.PlatformType }) => {
+    console.log("Syncro Ticket Creator: Office.onReady called", info);
     if (info.host === Office.HostType.Outlook) {
       initializeApp();
     }
   });
 } else {
+  console.log("Syncro Ticket Creator: Non-Office environment detected");
   // If we're not in an Office environment, initialize the app directly
-  document.addEventListener("DOMContentLoaded", initializeApp);
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("Syncro Ticket Creator: DOMContentLoaded event fired");
+    initializeApp();
+  });
 }
 
 async function loadSyncroSettings() {
+  console.log("Syncro Ticket Creator: loadSyncroSettings called");
   const settings = getSyncroSettings();
   console.log("Retrieved settings:", settings);
   syncroApiKey = settings.syncroApiKey;
@@ -65,8 +72,10 @@ async function loadSyncroSettings() {
 }
 
 function showSettingsUI() {
+  console.log("Syncro Ticket Creator: showSettingsUI called");
   const appBody = document.getElementById("app-body");
   if (appBody) {
+    console.log("Syncro Ticket Creator: app-body element found");
     appBody.innerHTML = `
       <h2>Syncro API Settings</h2>
       <div class="ms-TextField">
@@ -84,12 +93,14 @@ function showSettingsUI() {
       </div>
     `;
     document.getElementById("save-settings")!.onclick = saveSettings;
+    console.log("Syncro Ticket Creator: Settings UI rendered");
   } else {
-    console.error("Element with id 'app-body' not found");
+    console.error("Syncro Ticket Creator: Element with id 'app-body' not found");
   }
 }
 
 async function saveSettings() {
+  console.log("Syncro Ticket Creator: saveSettings called");
   const newSyncroUrl = (document.getElementById("syncro-url") as HTMLInputElement).value;
   const newSyncroApiKey = (document.getElementById("syncro-api-key") as HTMLInputElement).value;
 
@@ -113,6 +124,7 @@ async function saveSettings() {
 }
 
 async function verifyApiSettings() {
+  console.log("Syncro Ticket Creator: verifyApiSettings called");
   try {
     await fetchSyncroCustomers();
   } catch (error) {
@@ -122,6 +134,7 @@ async function verifyApiSettings() {
 }
 
 async function populateCustomers() {
+  console.log("Syncro Ticket Creator: populateCustomers called");
   try {
     const customers = await fetchSyncroCustomers();
     const customerSelect = document.getElementById("customer-select") as HTMLSelectElement;
@@ -141,6 +154,7 @@ async function populateCustomers() {
 }
 
 async function populateContacts() {
+  console.log("Syncro Ticket Creator: populateContacts called");
   try {
     showStatus("Loading contacts...");
     const customerId = (document.getElementById("customer-select") as HTMLSelectElement).value;
@@ -162,6 +176,7 @@ async function populateContacts() {
 }
 
 async function populateAssets() {
+  console.log("Syncro Ticket Creator: populateAssets called");
   try {
     showStatus("Loading assets...");
     const customerId = (document.getElementById("customer-select") as HTMLSelectElement).value;
@@ -182,6 +197,7 @@ async function populateAssets() {
 }
 
 async function createTicket(): Promise<void> {
+  console.log("Syncro Ticket Creator: createTicket called");
   try {
     showStatus("Creating ticket...");
     const emailInfo = await getEmailInfo();
@@ -211,6 +227,7 @@ async function createTicket(): Promise<void> {
 }
 
 async function getEmailInfo(): Promise<EmailInfo> {
+  console.log("Syncro Ticket Creator: getEmailInfo called");
   return new Promise((resolve) => {
     if (typeof Office !== "undefined" && Office.context && Office.context.mailbox) {
       const item = Office.context.mailbox.item;
@@ -241,6 +258,7 @@ async function getEmailInfo(): Promise<EmailInfo> {
 
 // Syncro API functions
 async function fetchSyncroCustomers(): Promise<SyncroCustomer[]> {
+  console.log("Syncro Ticket Creator: fetchSyncroCustomers called");
   const response = await fetch(`${syncroUrl}/api/v1/customers`, {
     headers: {
       Authorization: `Bearer ${syncroApiKey}`,
@@ -253,6 +271,7 @@ async function fetchSyncroCustomers(): Promise<SyncroCustomer[]> {
 }
 
 async function fetchSyncroContacts(customerId: number): Promise<SyncroContact[]> {
+  console.log("Syncro Ticket Creator: fetchSyncroContacts called");
   const response = await fetch(`${syncroUrl}/api/v1/customers/${customerId}/contacts`, {
     headers: {
       Authorization: `Bearer ${syncroApiKey}`,
@@ -265,6 +284,7 @@ async function fetchSyncroContacts(customerId: number): Promise<SyncroContact[]>
 }
 
 async function fetchSyncroAssets(customerId: number): Promise<SyncroAsset[]> {
+  console.log("Syncro Ticket Creator: fetchSyncroAssets called");
   const response = await fetch(`${syncroUrl}/api/v1/customers/${customerId}/assets`, {
     headers: {
       Authorization: `Bearer ${syncroApiKey}`,
@@ -277,6 +297,7 @@ async function fetchSyncroAssets(customerId: number): Promise<SyncroAsset[]> {
 }
 
 async function createSyncroTicket(ticketData: any): Promise<any> {
+  console.log("Syncro Ticket Creator: createSyncroTicket called");
   const response = await fetch(`${syncroUrl}/api/v1/tickets`, {
     method: "POST",
     headers: {
@@ -292,6 +313,7 @@ async function createSyncroTicket(ticketData: any): Promise<any> {
 }
 
 function showStatus(message: string, type: "info" | "error" | "success" = "info") {
+  console.log(`Syncro Ticket Creator: showStatus called - ${type}: ${message}`);
   const statusElement = document.getElementById("status-message");
   if (!statusElement) {
     const newStatusElement = document.createElement("div");
@@ -305,6 +327,7 @@ function showStatus(message: string, type: "info" | "error" | "success" = "info"
 }
 
 function hideStatus() {
+  console.log("Syncro Ticket Creator: hideStatus called");
   const statusElement = document.getElementById("status-message");
   if (statusElement) {
     statusElement.style.display = "none";
