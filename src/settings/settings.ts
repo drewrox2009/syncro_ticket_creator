@@ -5,19 +5,26 @@
 
 /* global Office */
 
-Office.onReady((info) => {
-  console.log("settings.ts: Office.onReady called", info);
-  if (info.host === Office.HostType.Outlook) {
+// Add event listener for DOMContentLoaded
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("settings.ts: DOMContentLoaded event fired");
+  if (typeof Office !== "undefined" && Office.context && Office.context.host === Office.HostType.Outlook) {
     loadSettings();
-    const saveSettingsButton = document.getElementById("save-settings");
-    if (saveSettingsButton) {
-      saveSettingsButton.addEventListener("click", saveSettings);
-      console.log("settings.ts: Event listener attached to save-settings button");
-    } else {
-      console.error("settings.ts: Element with id 'save-settings' not found");
-    }
+    attachSaveSettingsListener();
+  } else {
+    attachSaveSettingsListener();
   }
 });
+
+function attachSaveSettingsListener() {
+  const saveSettingsButton = document.getElementById("save-settings");
+  if (saveSettingsButton) {
+    saveSettingsButton.addEventListener("click", saveSettings);
+    console.log("settings.ts: Event listener attached to save-settings button");
+  } else {
+    console.error("settings.ts: Element with id 'save-settings' not found");
+  }
+}
 
 function saveSettings() {
   console.log("settings.ts: saveSettings called");
