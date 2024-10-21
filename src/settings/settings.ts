@@ -6,30 +6,39 @@
 /* global Office */
 
 Office.onReady((info) => {
+  console.log("settings.ts: Office.onReady called", info);
   if (info.host === Office.HostType.Outlook) {
-    document.getElementById("save-settings")!.onclick = saveSettings;
     loadSettings();
+    const saveSettingsButton = document.getElementById("save-settings");
+    if (saveSettingsButton) {
+      saveSettingsButton.addEventListener("click", saveSettings);
+      console.log("settings.ts: Event listener attached to save-settings button");
+    } else {
+      console.error("settings.ts: Element with id 'save-settings' not found");
+    }
   }
 });
 
 function saveSettings() {
+  console.log("settings.ts: saveSettings called");
   const syncroUrl = (document.getElementById("syncro-url") as HTMLInputElement).value;
   const syncroApiKey = (document.getElementById("syncro-api-key") as HTMLInputElement).value;
 
   saveSyncroSettings(syncroUrl, syncroApiKey)
     .then(() => {
-      console.log("Settings saved successfully");
+      console.log("settings.ts: Settings saved successfully");
       // TODO: Show success message to user
     })
     .catch((error) => {
-      console.error("Error saving settings:", error);
+      console.error("settings.ts: Error saving settings:", error);
       // TODO: Show error message to user
     });
 }
 
 function loadSettings() {
-  const syncroUrl = Office.context.roamingSettings.get("syncroUrl");
-  const syncroApiKey = Office.context.roamingSettings.get("syncroApiKey");
+  console.log("settings.ts: loadSettings called");
+  const syncroUrl = getSyncroSettings().syncroUrl;
+  const syncroApiKey = getSyncroSettings().syncroApiKey;
 
   if (syncroUrl) {
     (document.getElementById("syncro-url") as HTMLInputElement).value = syncroUrl;
@@ -41,21 +50,39 @@ function loadSettings() {
 
 // Export functions to be used in other files
 export function getSyncroSettings(): { syncroUrl: string; syncroApiKey: string } {
-  const syncroUrl = Office.context.roamingSettings.get("syncroUrl") as string;
-  const syncroApiKey = Office.context.roamingSettings.get("syncroApiKey") as string;
+  console.log("settings.ts: getSyncroSettings called");
+  let syncroUrl = "";
+  let syncroApiKey = "";
+
+  if (typeof Office !== "undefined" && Office.context && Office.context.roamingSettings) {
+    syncroUrl = (Office.context.roamingSettings.get("syncroUrl") as string) || "";
+    syncroApiKey = (Office.context.roamingSettings.get("syncroApiKey") as string) || "";
+  } else {
+    syncroUrl = localStorage.getItem("syncroUrl") || "";
+    syncroApiKey = localStorage.getItem("syncroApiKey") || "";
+  }
+
+  console.log("settings.ts: Retrieved settings:", { syncroUrl, syncroApiKey });
   return { syncroUrl, syncroApiKey };
 }
 
 export function saveSyncroSettings(syncroUrl: string, syncroApiKey: string): Promise<void> {
+  console.log("settings.ts: saveSyncroSettings called", { syncroUrl, syncroApiKey });
   return new Promise((resolve, reject) => {
-    Office.context.roamingSettings.set("syncroUrl", syncroUrl);
-    Office.context.roamingSettings.set("syncroApiKey", syncroApiKey);
-    Office.context.roamingSettings.saveAsync((result) => {
-      if (result.status === Office.AsyncResultStatus.Succeeded) {
-        resolve();
-      } else {
-        reject(result.error);
-      }
-    });
+    if (typeof Office !== "undefined" && Office.context && Office.context.roamingSettings) {
+      Office.context.roamingSettings.set("syncroUrl", syncroUrl);
+      Office.context.roamingSettings.set("syncroApiKey", syncroApiKey);
+      Office.context.roamingSettings.saveAsync((result) => {
+        if (result.status === Office.AsyncResultStatus.Succeeded) {
+          resolve();
+        } else {
+          reject(result.error);
+        }
+      });
+    } else {
+      localStorage.setItem("syncroUrl", syncroUrl);
+      localStorage.setItem("syncroApiKey", syncroApiKey);
+      resolve();
+    }
   });
 }
