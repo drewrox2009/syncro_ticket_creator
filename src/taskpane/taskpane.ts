@@ -76,6 +76,8 @@ function showSettingsUI() {
   const appBody = document.getElementById("app-body");
   if (appBody) {
     console.log("Syncro Ticket Creator: app-body element found");
+    console.log("Syncro Ticket Creator: syncroUrl:", syncroUrl);
+    console.log("Syncro Ticket Creator: syncroApiKey:", syncroApiKey);
     appBody.innerHTML = `
       <h2>Syncro API Settings</h2>
       <div class="ms-TextField">
