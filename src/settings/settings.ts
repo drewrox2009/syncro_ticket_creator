@@ -5,16 +5,18 @@
 
 /* global Office */
 
-// Add event listener for DOMContentLoaded
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("settings.ts: DOMContentLoaded event fired");
-  if (typeof Office !== "undefined" && Office.context && Office.context.host === Office.HostType.Outlook) {
-    loadSettings();
-    attachSaveSettingsListener();
-  } else {
-    attachSaveSettingsListener();
-  }
+// Use MutationObserver to attach event listener when element is added to DOM
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+      attachSaveSettingsListener();
+      observer.disconnect(); // Disconnect observer after listener is attached
+    }
+  });
 });
+
+// Start observing changes in the document body
+observer.observe(document.body, { childList: true, subtree: true });
 
 function attachSaveSettingsListener() {
   const saveSettingsButton = document.getElementById("save-settings");
@@ -26,20 +28,21 @@ function attachSaveSettingsListener() {
   }
 }
 
-function saveSettings() {
+async function saveSettings() {
   console.log("settings.ts: saveSettings called");
   const syncroUrl = (document.getElementById("syncro-url") as HTMLInputElement).value;
   const syncroApiKey = (document.getElementById("syncro-api-key") as HTMLInputElement).value;
 
-  saveSyncroSettings(syncroUrl, syncroApiKey)
-    .then(() => {
-      console.log("settings.ts: Settings saved successfully");
-      // TODO: Show success message to user
-    })
-    .catch((error) => {
-      console.error("settings.ts: Error saving settings:", error);
-      // TODO: Show error message to user
-    });
+  try {
+    await saveSyncroSettings(syncroUrl, syncroApiKey);
+    console.log("settings.ts: Settings saved successfully");
+    // Redirect back to the main taskpane
+    window.close();
+  } catch (error) {
+    console.error("settings.ts: Error saving settings:", error);
+    // Show error message to user
+    alert("Error saving settings: " + error.message);
+  }
 }
 
 function loadSettings() {
@@ -77,19 +80,27 @@ export function saveSyncroSettings(syncroUrl: string, syncroApiKey: string): Pro
   console.log("settings.ts: saveSyncroSettings called", { syncroUrl, syncroApiKey });
   return new Promise((resolve, reject) => {
     if (typeof Office !== "undefined" && Office.context && Office.context.roamingSettings) {
-      Office.context.roamingSettings.set("syncroUrl", syncroUrl);
-      Office.context.roamingSettings.set("syncroApiKey", syncroApiKey);
-      Office.context.roamingSettings.saveAsync((result) => {
-        if (result.status === Office.AsyncResultStatus.Succeeded) {
-          resolve();
-        } else {
-          reject(result.error);
-        }
-      });
+      try {
+        Office.context.roamingSettings.set("syncroUrl", syncroUrl);
+        Office.context.roamingSettings.set("syncroApiKey", syncroApiKey);
+        Office.context.roamingSettings.saveAsync((result) => {
+          if (result.status === Office.AsyncResultStatus.Succeeded) {
+            resolve();
+          } else {
+            reject(new Error("Error saving settings in Office environment: " + JSON.stringify(result.error)));
+          }
+        });
+      } catch (error) {
+        reject(new Error("Error saving settings in Office environment: " + error.message));
+      }
     } else {
-      localStorage.setItem("syncroUrl", syncroUrl);
-      localStorage.setItem("syncroApiKey", syncroApiKey);
-      resolve();
+      try {
+        localStorage.setItem("syncroUrl", syncroUrl);
+        localStorage.setItem("syncroApiKey", syncroApiKey);
+        resolve();
+      } catch (error) {
+        reject(new Error("Error saving settings in local storage: " + error.message));
+      }
     }
   });
 }
