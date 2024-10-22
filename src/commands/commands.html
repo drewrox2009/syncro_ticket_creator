@@ -1,18 +1,47 @@
-<!-- Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT License. -->
-
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Syncro Commands</title>
 
     <!-- Office JavaScript API -->
-    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
-</head>
+    <script
+      type="text/javascript"
+      src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"
+      integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxp1A4tWj5n6+g9t5g5+5hb7ie5+5"
+      crossorigin="anonymous"
+    ></script>
 
-<body>
-  
-</body>
+    <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
+    <link
+      rel="stylesheet"
+      href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css"
+    />
 
+    <!-- Template styles -->
+    <link href="commands.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body class="ms-font-m ms-Fabric">
+    <header class="ms-welcome__header ms-bgColor-neutralLighter">
+      <img width="90" height="90" src="../../assets/logo-filled.png" alt="Syncro" title="Syncro" />
+      <h1 class="ms-font-su">Syncro Commands</h1>
+    </header>
+    <main id="app-body" class="ms-welcome__main">
+      <form id="commands-form">
+        <div class="ms-TextField">
+          <label class="ms-Label" for="command-input">Command</label>
+          <input type="text" id="command-input" class="ms-TextField-field" required />
+        </div>
+        <div class="ms-TextField">
+          <button id="execute-command" class="ms-Button ms-Button--primary">
+            <span class="ms-Button-label">Execute Command</span>
+          </button>
+        </div>
+      </form>
+    </main>
+    <!-- Placeholder for webpack to inject script tags -->
+  </body>
 </html>

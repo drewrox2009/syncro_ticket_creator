@@ -1,8 +1,3 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
- * See LICENSE in the project root for license information.
- */
-
 /* global Office */
 
 // Use MutationObserver to attach event listener when element is added to DOM
@@ -17,6 +12,9 @@ const observer = new MutationObserver((mutations) => {
 
 // Start observing changes in the document body
 observer.observe(document.body, { childList: true, subtree: true });
+
+// Call loadSettings to populate the input fields with saved settings
+document.addEventListener("DOMContentLoaded", loadSettings);
 
 function attachSaveSettingsListener() {
   const saveSettingsButton = document.getElementById("save-settings");
@@ -33,6 +31,11 @@ async function saveSettings() {
   const syncroUrl = (document.getElementById("syncro-url") as HTMLInputElement).value;
   const syncroApiKey = (document.getElementById("syncro-api-key") as HTMLInputElement).value;
 
+  if (!syncroUrl || !syncroApiKey) {
+    alert("Please enter both Syncro URL and API Key.");
+    return;
+  }
+
   try {
     await saveSyncroSettings(syncroUrl, syncroApiKey);
     console.log("settings.ts: Settings saved successfully");
@@ -40,15 +43,15 @@ async function saveSettings() {
     window.close();
   } catch (error) {
     console.error("settings.ts: Error saving settings:", error);
-    // Show error message to user
     alert("Error saving settings: " + error.message);
   }
 }
 
 function loadSettings() {
   console.log("settings.ts: loadSettings called");
-  const syncroUrl = getSyncroSettings().syncroUrl;
-  const syncroApiKey = getSyncroSettings().syncroApiKey;
+  const settings = getSyncroSettings();
+  const syncroUrl = settings.syncroUrl;
+  const syncroApiKey = settings.syncroApiKey;
 
   if (syncroUrl) {
     (document.getElementById("syncro-url") as HTMLInputElement).value = syncroUrl;
