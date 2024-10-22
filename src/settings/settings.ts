@@ -30,20 +30,22 @@ async function saveSettings() {
   console.log("settings.ts: saveSettings called");
   const syncroUrl = (document.getElementById("syncro-url") as HTMLInputElement).value;
   const syncroApiKey = (document.getElementById("syncro-api-key") as HTMLInputElement).value;
+  const errorMessageDiv = document.getElementById("error-message");
 
   if (!syncroUrl || !syncroApiKey) {
-    alert("Please enter both Syncro URL and API Key.");
+    showStatus("Please enter both Syncro URL and API Key.", "error");
     return;
   }
 
   try {
     await saveSyncroSettings(syncroUrl, syncroApiKey);
     console.log("settings.ts: Settings saved successfully");
+    showStatus("Settings saved successfully!", "success");
     // Redirect back to the main taskpane
     window.close();
   } catch (error) {
     console.error("settings.ts: Error saving settings:", error);
-    alert("Error saving settings: " + error.message);
+    showStatus("Error saving settings: " + error.message, "error");
   }
 }
 
@@ -106,4 +108,13 @@ export function saveSyncroSettings(syncroUrl: string, syncroApiKey: string): Pro
       }
     }
   });
+}
+
+function showStatus(message: string, type: "info" | "error" | "success" = "info") {
+  const statusElement = document.getElementById("status-message");
+  if (statusElement) {
+    statusElement.textContent = message;
+    statusElement.className = `status-message ${type}`;
+    statusElement.style.display = "block";
+  }
 }

@@ -7,12 +7,7 @@
     <title>Syncro Ticket Creator</title>
 
     <!-- Office JavaScript API -->
-    <script
-      type="text/javascript"
-      src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"
-      integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxp1A4tWj5n6+g9t5g5+5hb7ie5+5"
-      crossorigin="anonymous"
-    ></script>
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
 
     <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
     <link
@@ -30,21 +25,22 @@
       <h1 class="ms-font-su">Syncro Ticket Creator</h1>
     </header>
     <main id="app-body" class="ms-welcome__main">
+      <div id="status-message" style="margin-bottom: 10px"></div>
       <form id="ticket-form">
         <div class="ms-TextField">
-          <label class="ms-Label" for="customer-select">Syncro Customer</label>
+          <label class="ms-Label" for="customer-select">Select a Syncro Customer</label>
           <select id="customer-select" class="ms-Dropdown" required aria-label="Select Syncro Customer">
             <option value="">Select a customer</option>
           </select>
         </div>
         <div class="ms-TextField">
-          <label class="ms-Label" for="contact-select">Contact</label>
+          <label class="ms-Label" for="contact-select">Select a Contact</label>
           <select id="contact-select" class="ms-Dropdown" required aria-label="Select Contact">
             <option value="">Select a contact</option>
           </select>
         </div>
         <div class="ms-TextField">
-          <label class="ms-Label" for="asset-select">Asset (Optional)</label>
+          <label class="ms-Label" for="asset-select">Select an Asset (Optional)</label>
           <select id="asset-select" class="ms-Dropdown" aria-label="Select Asset">
             <option value="">Select an asset</option>
           </select>

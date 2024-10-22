@@ -168,6 +168,7 @@ async function verifyApiSettings() {
 async function populateCustomers() {
   console.log("Syncro Ticket Creator: populateCustomers called");
   try {
+    showStatus("Loading customers...", "info"); // Added loading indicator
     const customers = await fetchSyncroCustomers();
     const customerSelect = document.getElementById("customer-select") as HTMLSelectElement;
     if (!customerSelect) {
@@ -182,6 +183,7 @@ async function populateCustomers() {
       customerSelect.appendChild(option);
     });
     customerSelect.onchange = populateContacts;
+    hideStatus(); // Hide loading indicator after successful load
   } catch (error) {
     console.error("Error populating customers:", error);
     showStatus("Failed to load customers. Please check your Syncro settings.", "error");
@@ -192,7 +194,7 @@ async function populateCustomers() {
 async function populateContacts() {
   console.log("Syncro Ticket Creator: populateContacts called");
   try {
-    showStatus("Loading contacts...");
+    showStatus("Loading contacts...", "info");
     const customerId = (document.getElementById("customer-select") as HTMLSelectElement).value;
     const contacts = await fetchSyncroContacts(parseInt(customerId));
     const contactSelect = document.getElementById("contact-select") as HTMLSelectElement;
@@ -218,7 +220,7 @@ async function populateContacts() {
 async function populateAssets() {
   console.log("Syncro Ticket Creator: populateAssets called");
   try {
-    showStatus("Loading assets...");
+    showStatus("Loading assets...", "info");
     const customerId = (document.getElementById("customer-select") as HTMLSelectElement).value;
     const assets = await fetchSyncroAssets(parseInt(customerId));
     const assetSelect = document.getElementById("asset-select") as HTMLSelectElement;
@@ -243,13 +245,18 @@ async function populateAssets() {
 async function createTicket(): Promise<void> {
   console.log("Syncro Ticket Creator: createTicket called");
   try {
-    showStatus("Creating ticket...");
+    showStatus("Creating ticket...", "info");
     const emailInfo = await getEmailInfo();
     const customerId = (document.getElementById("customer-select") as HTMLSelectElement).value;
     const contactId = (document.getElementById("contact-select") as HTMLSelectElement).value;
     const assetId = (document.getElementById("asset-select") as HTMLSelectElement).value;
     const ticketTitle = (document.getElementById("ticket-title") as HTMLInputElement).value || emailInfo.subject;
     const ticketMessage = (document.getElementById("ticket-message") as HTMLTextAreaElement).value || emailInfo.content;
+
+    if (!customerId || !contactId || !ticketTitle || !ticketMessage) {
+      showStatus("Please fill in all required fields.", "error");
+      return;
+    }
 
     const ticketData = {
       customer_id: parseInt(customerId),
@@ -267,6 +274,8 @@ async function createTicket(): Promise<void> {
   } catch (error) {
     console.error("Error creating ticket:", error);
     showStatus("Failed to create ticket. Please try again.", "error");
+  } finally {
+    hideStatus();
   }
 }
 
