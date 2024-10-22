@@ -47,7 +47,7 @@ if (typeof Office !== "undefined") {
   Office.onReady((info: { host: Office.HostType; platform: Office.PlatformType }) => {
     console.log("Syncro Ticket Creator: Office.onReady called", info);
     if (info.host === Office.HostType.Outlook) {
-      initializeApp();
+      document.addEventListener("DOMContentLoaded", initializeApp); // Ensure DOM is fully loaded
     }
   });
 } else {
@@ -87,9 +87,13 @@ function showSettingsUI() {
         <button id="save-settings" class="ms-Button ms-Button--primary">
           <span class="ms-Button-label">Save Settings</span>
         </button>
+        <button id="test-api-settings" class="ms-Button ms-Button--secondary">
+          <span class="ms-Button-label">Test API Settings</span>
+        </button>
       </div>
     `;
     document.getElementById("save-settings")!.onclick = saveSettings;
+    document.getElementById("test-api-settings")!.onclick = testApiSettings;
     console.log("Syncro Ticket Creator: Settings UI rendered");
   } else {
     console.error("Syncro Ticket Creator: Element with id 'app-body' not found");
@@ -117,6 +121,37 @@ async function saveSettings() {
   } catch (error) {
     console.error("Error saving settings:", error);
     showStatus("Failed to save settings. Please try again.", "error");
+  }
+}
+
+// New function to test API settings
+async function testApiSettings() {
+  console.log("Syncro Ticket Creator: testApiSettings called");
+  const testSyncroUrl = (document.getElementById("syncro-url") as HTMLInputElement).value;
+  const testSyncroApiKey = (document.getElementById("syncro-api-key") as HTMLInputElement).value;
+
+  if (!testSyncroUrl || !testSyncroApiKey) {
+    showStatus("Please enter both Syncro URL and API Key.", "error");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${testSyncroUrl}/api/v1/customers`, {
+      headers: {
+        Authorization: `Bearer ${testSyncroApiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to verify API settings. Please check your Syncro URL and API Key.");
+    }
+
+    const customers = await response.json();
+    console.log("Syncro Ticket Creator: API settings verified successfully", customers);
+    showStatus("API settings verified successfully!", "success");
+  } catch (error) {
+    console.error("Error verifying API settings:", error);
+    showStatus("Failed to verify API settings. Please try again.", "error");
   }
 }
 
