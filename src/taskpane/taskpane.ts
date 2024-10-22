@@ -38,11 +38,10 @@ let syncroUrl: string;
 // Function to initialize the app
 function initializeApp() {
   console.log("Syncro Ticket Creator: initializeApp called");
-  document.getElementById("create-ticket")!.onclick = createTicket;
   loadSyncroSettings();
+  document.getElementById("create-ticket")!.onclick = createTicket;
 }
 
-// Check if we're in an Office environment
 if (typeof Office !== "undefined") {
   console.log("Syncro Ticket Creator: Office environment detected");
   Office.onReady((info: { host: Office.HostType; platform: Office.PlatformType }) => {
@@ -53,7 +52,6 @@ if (typeof Office !== "undefined") {
   });
 } else {
   console.log("Syncro Ticket Creator: Non-Office environment detected");
-  // If we're not in an Office environment, initialize the app directly
   document.addEventListener("DOMContentLoaded", () => {
     console.log("Syncro Ticket Creator: DOMContentLoaded event fired");
     initializeApp();
@@ -67,7 +65,6 @@ async function loadSyncroSettings() {
   syncroApiKey = settings.syncroApiKey;
   syncroUrl = settings.syncroUrl;
 
-  // Always show the settings UI when the app is launched
   showSettingsUI();
 }
 
@@ -76,8 +73,6 @@ function showSettingsUI() {
   const appBody = document.getElementById("app-body");
   if (appBody) {
     console.log("Syncro Ticket Creator: app-body element found");
-    console.log("Syncro Ticket Creator: syncroUrl:", syncroUrl);
-    console.log("Syncro Ticket Creator: syncroApiKey:", syncroApiKey);
     appBody.innerHTML = `
       <h2>Syncro API Settings</h2>
       <div class="ms-TextField">
@@ -140,6 +135,10 @@ async function populateCustomers() {
   try {
     const customers = await fetchSyncroCustomers();
     const customerSelect = document.getElementById("customer-select") as HTMLSelectElement;
+    if (!customerSelect) {
+      console.error("Syncro Ticket Creator: Element with id 'customer-select' not found");
+      return;
+    }
     customerSelect.innerHTML = '<option value="">Select a customer</option>';
     customers.forEach((customer) => {
       const option = document.createElement("option");
@@ -151,7 +150,7 @@ async function populateCustomers() {
   } catch (error) {
     console.error("Error populating customers:", error);
     showStatus("Failed to load customers. Please check your Syncro settings.", "error");
-    throw error; // Rethrow the error to be caught by the caller
+    throw error;
   }
 }
 
@@ -162,6 +161,10 @@ async function populateContacts() {
     const customerId = (document.getElementById("customer-select") as HTMLSelectElement).value;
     const contacts = await fetchSyncroContacts(parseInt(customerId));
     const contactSelect = document.getElementById("contact-select") as HTMLSelectElement;
+    if (!contactSelect) {
+      console.error("Syncro Ticket Creator: Element with id 'contact-select' not found");
+      return;
+    }
     contactSelect.innerHTML = '<option value="">Select a contact</option>';
     contacts.forEach((contact) => {
       const option = document.createElement("option");
@@ -184,6 +187,10 @@ async function populateAssets() {
     const customerId = (document.getElementById("customer-select") as HTMLSelectElement).value;
     const assets = await fetchSyncroAssets(parseInt(customerId));
     const assetSelect = document.getElementById("asset-select") as HTMLSelectElement;
+    if (!assetSelect) {
+      console.error("Syncro Ticket Creator: Element with id 'asset-select' not found");
+      return;
+    }
     assetSelect.innerHTML = '<option value="">Select an asset</option>';
     assets.forEach((asset) => {
       const option = document.createElement("option");
@@ -247,7 +254,6 @@ async function getEmailInfo(): Promise<EmailInfo> {
         resolve(emailInfo);
       });
     } else {
-      // If we're not in Outlook, return empty email info
       resolve({
         subject: "",
         content: "",
@@ -336,7 +342,6 @@ function hideStatus() {
   }
 }
 
-// Simple HTML sanitization function
 function sanitizeHtml(input: string): string {
   const div = document.createElement("div");
   div.textContent = input;
